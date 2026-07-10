@@ -11,6 +11,7 @@
 - 新增仓库级校验器，统一检查名称、frontmatter、目录内容和跨 Skill 重复触发语，并调用官方与领域校验。
 - 将安装脚本参数化为 `-Name`、`-SourceRoot` 和 `-DestinationRoot`，支持按名称验证、备份和同步任意 Skill。
 - 可安装内容顶层白名单新增 `templates/`（仓库校验器与安装脚本同步）；新增仓库根 `docs/` 存放各 Skill 的人类文档。
+- 仓库 README 精简为仓库级介绍（清单、目录、验证、安装、新增流程）；design-image-prompt-engineer 核心行为说明移至 `docs/design-image-prompt-engineer/README.zh-CN.md`。
 
 ### patent-disclosure 1.0.0（新增）
 
