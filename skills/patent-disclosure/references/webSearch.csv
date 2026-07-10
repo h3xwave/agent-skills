@@ -1,0 +1,22 @@
+网站名称,网址,用途说明
+Google Patents,https://patents.google.com/,全球专利检索（支持语义搜索），用于查找相关专利文献
+CNIPA (中国国家知识产权局),https://pss-system.cponline.cnipa.gov.cn/,中国专利权威来源，检索国内相关专利
+WIPO PATENTSCOPE,https://patentscope.wipo.int/,PCT 国际专利申请检索
+Espacenet,https://worldwide.espacenet.com/,欧洲及全球专利检索
+DBLP (计算机科学参考书目),https://dblp.org/,计算机科学领域学术论文检索
+arXiv,https://arxiv.org/,预印本论文检索（覆盖 CS、物理、数学等）
+Google Scholar,https://scholar.google.com/,综合学术文献检索
+中国知网 (CNKI),https://www.cnki.net/,中文学术文献和学位论文检索
+中国专利公布公告查询,https://app.gjzwfw.gov.cn/jmopen/webapp/html5/zlgbggcx/index.html,中国专利公开/公告官方查询，用于核对公布号、公告日、事务数据
+中国及多国专利审查信息查询,https://cpquery.cponline.cnipa.gov.cn/,中国及美欧日韩审查信息查询，用于核验审查进展、同族信息和法律状态
+USPTO Patent Public Search,https://ppubs.uspto.gov/pubwebapp/,美国专利与专利申请官方检索，用于美国现有技术核验
+J-PlatPat,https://www.j-platpat.inpit.go.jp/,日本官方专利/实用新型检索，用于补充日本现有技术
+KIPRIS,https://www.kipris.or.kr/enghome/main.jsp,韩国官方知识产权检索，用于补充韩国专利/实用新型/外观信息
+Common Citation Document (CCD),https://ccd.fiveipoffices.org/,IP5 同族引用文献汇总，用于发现各局审查员引用的高风险对比文件
+WIPO IPC,https://www.wipo.int/en/web/classification-ipc,IPC 分类号查询，用于构建分类号检索式
+CPC,https://www.cooperativepatentclassification.org/,CPC 分类体系查询，用于美欧专利高精度分类检索
+Semantic Scholar,https://www.semanticscholar.org/,AI 语义学术检索，用于补充 Google Scholar/arXiv 的论文和引用网络
+PubMed,https://pubmed.ncbi.nlm.nih.gov/,生物医药与生命科学文献检索，用于医药/医疗器械/生物技术方向
+GitHub Code Search,https://github.com/search,开源代码与项目检索，用于公开实现、开源披露和替代方案查证
+IETF Datatracker,https://datatracker.ietf.org/,RFC 与 Internet-Draft 检索，用于网络协议/通信/安全相关标准现有技术
+3GPP Specifications,https://www.3gpp.org/specifications,移动通信标准规范检索，用于 4G/5G/6G 相关现有技术

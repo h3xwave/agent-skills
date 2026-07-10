@@ -1,0 +1,4 @@
+interface:
+  display_name: "图像提示词工程师"
+  short_description: "创作、诊断并优化图像 Prompt 与人物参考用法"
+  default_prompt: "Use $design-image-prompt-engineer to write or diagnose a platform-ready AI image prompt, including keeping the same person from a reference photo with stable proportions and expressions."
