@@ -1,0 +1,22 @@
+[
+  {"query":"我有个传感器结构创新，帮我整理成给专利代理人的技术交底书。","should_trigger":true},
+  {"query":"评估一下这个算法方案与已有专利撞车的风险。","should_trigger":true},
+  {"query":"这是研发说明，请补强成完整的发明披露材料。","should_trigger":true},
+  {"query":"帮我从这个模糊技术方向挖三个可能的专利保护点。","should_trigger":true},
+  {"query":"把现有交底书润色一下，技术方案不能编造。","should_trigger":true},
+  {"query":"把这份交底书 Markdown 导出成 Word。","should_trigger":true},
+  {"query":"帮我梳理可供代理人写权利要求的关键保护点素材。","should_trigger":true},
+  {"query":"我们方案可能已经发过论文，整理交底书前帮我判断公开风险。","should_trigger":true},
+  {"query":"检索这个机械结构的历史现有技术并给出定性风险。","should_trigger":true},
+  {"query":"我想申请专利，但只有一个初步想法，先访谈我。","should_trigger":true},
+  {"query":"帮我写一份产品市场商业计划书。","should_trigger":false},
+  {"query":"把这篇论文翻译成中文并润色。","should_trigger":false},
+  {"query":"直接替我向国家知识产权局提交专利申请。","should_trigger":false},
+  {"query":"分析这份软件许可协议是否允许商用。","should_trigger":false},
+  {"query":"帮我检索最近两年的 AI 行业新闻趋势。","should_trigger":false},
+  {"query":"写一个图像生成 Prompt，主题是未来实验室。","should_trigger":false},
+  {"query":"给这个 React 项目做详细设计文档。","should_trigger":false},
+  {"query":"评价一个产品创意是否值得创业，不考虑专利。","should_trigger":false},
+  {"query":"帮我画机械零件的 CAD 草图。","should_trigger":false},
+  {"query":"总结这几份已经公开的专利摘要，不做申请或风险评估。","should_trigger":false}
+]

@@ -1,23 +1,16 @@
 # Lighting Techniques
 
-布光描述要说明光源位置、光质、阴影和用途。先按摄影轨道确定复杂度，再选技术；不要只写“高级光影”。
-
-## 轨道规则
-
-- 商业精修：允许受控多灯、黑白卡、反射控制与分区曝光；让每盏灯服务脸型、材质、轮廓或背景。
-- 干净真实：确定一个可解释的主导光源，允许真实存在的环境光、实景灯具或弱辅助光；保持主导方向和阴影因果清楚。
-- 生活抓拍：优先现场光或直接闪光；允许混合色温，但不要堆满主光、补光、轮廓光和发丝光。
-- 混合光不是多个主导光：先说明谁决定曝光和阴影，再写环境光造成的色温差或局部影响。
+本文件只提供布光技术。轨道复杂度、主导光源和锚点规则以 [photography-framework.md](photography-framework.md) 为唯一来源；选词时说明光源位置、光质、阴影和用途，不只写“高级光影”。
 
 ## Portrait Lighting
 
 - Butterfly lighting：主光在相机正前上方，鼻下形成小蝶形阴影；适合美妆、经典肖像和对称脸部。
 - Clamshell lighting：上方主光配弱下方补光，阴影柔和；适合 beauty、护肤和商业头像，属于受控布光。
-- Loop lighting：主光从相机侧前方略高位置照射，鼻影形成小环；自然、通用，适合企业头像和干净真实人像。
+- Loop lighting：主光从相机侧前方略高位置照射，鼻影形成小环；自然、通用，适合企业头像和日常人像。
 - Rembrandt lighting：侧上方主光在暗面脸颊形成三角高光；适合成熟、戏剧或编辑人像。
 - Split lighting：主光让半张脸亮、半张脸暗；适合强冲突、悬疑和低调肖像。
 - Broad / short lighting：根据亮面或暗面朝向镜头调整脸部宽窄感；人物是否看镜头由用途决定，不由真实感轨道决定。
-- Rim / hair light：从后侧勾勒头发与肩线；商业精修可独立设置，干净真实只在环境中确有逆光或弱轮廓光时使用。
+- Rim / hair light：从后侧勾勒头发与肩线；只有轮廓分离或环境逆光确有需要时使用。
 
 ## Product Lighting
 
@@ -26,8 +19,8 @@
 - Hard specular light：小光源制造清晰高光，适合珠宝、玻璃、金属和奢侈品。
 - Flag / black card control：用黑卡塑造反射边界，让亮面产品体积清楚。
 - Gradient background light：背景形成受控渐变，提高产品分离度和商业质感。
-- Focus-stacked macro：微距产品用多张焦点堆叠保证关键表面清晰；属于商业或技术处理，不是真实感瑕疵。
-- Clean-real product light：用一个大窗光或主柔光塑造可信反射，可加弱反光板控制反差；保持台面和产品干净，不主动加入灰尘、指纹或杂物。
+- Focus-stacked macro：微距产品用多张焦点堆叠保证关键表面清晰；属于技术处理，不是真实感瑕疵。
+- Credible product light：用一个大窗光或主柔光塑造可信反射，可加弱反光板控制反差；保持台面和产品干净，不主动加入灰尘、指纹或杂物。
 
 ## Fashion / Editorial Lighting
 
@@ -45,16 +38,16 @@
 - Backlight silhouette：逆光形成轮廓或剪影；适合情绪场景和风光，按主体曝光目标决定是否保留细节。
 - Dappled light：树影或百叶窗形成斑驳光影；必须让图案方向与光源位置一致。
 - Wedding mixed light：让窗光、棚灯或摄影师闪光中的一个主导主体曝光，允许钨丝灯、彩灯或环境日光形成合理混合色温；明确抓拍时再加入瞬时锚点。
-- Direct flash candid：机顶或相机轴附近闪光形成正面亮度与后方硬阴影；作为一个真实感锚点使用，不再自动叠加过曝、噪点和倾斜。
+- Direct flash candid：机顶或相机轴附近闪光形成正面亮度与后方硬阴影；是否计入锚点及能否再叠加其他特征按摄影框架处理。
 
 ## Automotive / Large Surface Lighting
 
 - Large softbox sweep：大面积柔光扫过车身曲面，形成连续渐变高光；适合汽车、家电和反光金属。
-- Light tent：包围柔光减少杂乱反射；适合珠宝、玻璃和高反光小物，属于商业精修。
+- Light tent：包围柔光减少杂乱反射；适合珠宝、玻璃和高反光小物。
 - Gradient reflection control：用黑白卡与渐变光控制车身或金属反射边线。
 - Strip light edge：长条灯勾勒车身、瓶身或设备轮廓线。
 - Light painting：长曝多次补光后克制合成，逐段照亮汽车或大型机械；保持高光方向与材质连续。
-- Clean-real automotive：以阴天、开放阴影或一个大型主光作为主导，让环境自然映入漆面；保持车身比例和反射可信，不使用 candid 语汇。
+- Credible automotive：以阴天、开放阴影或一个大型主光作为主导，让环境自然映入漆面；保持车身比例和反射可信，不使用 candid 语汇。
 
 ## Architectural / Interior Lighting
 

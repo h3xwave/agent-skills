@@ -1,171 +1,76 @@
 {
   "cases": [
     {
-      "id": "public_risk_asked_first",
-      "request": "帮我写一份专利交底书，方案我已经想好了",
-      "expected": "进入访谈或起草前先询问公开风险，并要求已披露时提供具体日期。",
-      "evidence": [
-        {
-          "path": "rules/core-rules.md",
-          "contains_all": ["先询问公开风险：该发明是否已在论文、会议、产品发布、开源仓库、宣传材料或任何公开渠道中披露", "如已披露，要求提供具体日期"]
-        },
-        {
-          "path": "workflows/interview.md",
-          "contains_all": ["先完成公开风险询问"]
-        }
-      ]
+      "id": "fast_mode_does_not_block",
+      "request": "快速整理已有材料，不联网",
+      "expected": "快速模式不以公开风险、联网或预判报告为前置条件。",
+      "evidence": [{"path": "rules/core-rules.md", "contains_all": ["快速模式不以公开风险询问、联网检索或预判报告作为强制前置条件", "必须明确未检索、未核验和需代理人确认的部分"]}]
     },
     {
-      "id": "discovery_search_then_ask_risk",
-      "request": "我只有一个大概方向，帮我挖掘可申请的切入点",
-      "expected": "方向挖掘阶段允许先用抽象技术词检索，但进入后续流程前必须完成公开风险询问。",
-      "evidence": [
-        {
-          "path": "rules/core-rules.md",
-          "contains_all": ["方向挖掘阶段可先用抽象技术词检索，但进入后续流程前必须完成公开风险询问"]
-        },
-        {
-          "path": "workflows/discovery.md",
-          "contains_all": ["进入后续流程前，执行公开风险提问"]
-        }
-      ]
+      "id": "full_mode_has_risk_gate",
+      "request": "从想法走完整流程形成交底书",
+      "expected": "完整模式先确认公开风险，评估后再确认起草。",
+      "evidence": [{"path": "rules/core-rules.md", "contains_all": ["完整模式进入实质访谈、检索或正式起草前", "应先展示风险评估并征得用户确认"]}]
     },
     {
-      "id": "vague_disclosure_answer_triggers_search",
-      "request": "我不知道这个方案之前有没有公开过",
-      "expected": "模糊回答时自行检索公开记录，并标注检索范围与截止日期。",
-      "evidence": [
-        {
-          "path": "rules/core-rules.md",
-          "contains_all": ["等模糊信息时，应自行检索公开记录", "标注检索范围与截止日期"]
-        }
-      ]
+      "id": "adaptive_interview",
+      "request": "材料不全但不要固定四轮",
+      "expected": "根据缺口自适应提问，每轮最多三个高影响问题。",
+      "evidence": [{"path": "workflows/interview.md", "contains_all": ["不机械执行固定四轮", "每轮最多提出 3 个高影响问题"]}]
     },
     {
-      "id": "four_rounds_no_skipping",
-      "request": "信息还不全，直接把四轮问题一次全问了吧",
-      "expected": "默认访谈路径按轮推进，每轮不超过 3 个问题，未确认不得进入下一轮。",
-      "evidence": [
-        {
-          "path": "workflows/interview.md",
-          "contains_all": ["每轮不超过 3 个问题", "当前轮次结束并得到用户确认前，不得进入下一轮"]
-        }
-      ]
+      "id": "historical_prior_art_window",
+      "request": "检索十多年前可能公开的技术",
+      "expected": "专利检索不设近年下限，以优先权日或拟申请日为上限。",
+      "evidence": [{"path": "rules/search-and-confidentiality.md", "contains_all": ["不设置“近几年”的下限", "优先权日和拟申请日均未知时"]}]
     },
     {
-      "id": "existing_material_max_three_questions",
-      "request": "这是我的研发文档，直接整理成交底书",
-      "expected": "走已有材料路径：输出材料完整性审查，一次最多追问 3 个关键缺口问题。",
-      "evidence": [
-        {
-          "path": "workflows/interview.md",
-          "contains_all": ["材料完整性审查", "一次最多追问 3 个问题"]
-        }
-      ]
+      "id": "recent_window_only_for_discovery",
+      "request": "挖掘近期研发方向",
+      "expected": "近期窗口只服务趋势与方向发现，不限制历史现有技术。",
+      "evidence": [{"path": "references/search_strategy.md", "contains_all": ["方向挖掘/技术趋势", "不要把趋势检索的近期窗口用于现有技术检索"]}]
     },
     {
-      "id": "no_draft_before_report_confirmation",
-      "request": "预判报告先不用看了，直接开始写交底书",
-      "expected": "未向用户展示预判报告并获得明确确认前，不得进入正式起草。",
-      "evidence": [
-        {
-          "path": "workflows/prior-art-assessment.md",
-          "contains_all": ["并获得用户对可行性与风险分析的明确确认前，不得进入"]
-        },
-        {
-          "path": "rules/core-rules.md",
-          "contains_all": ["未向用户展示《专利申请预判报告》并获得明确确认前，不得进入正式交底书起草"]
-        }
-      ]
+      "id": "qualitative_risk_contract",
+      "request": "给出可专利性风险初评",
+      "expected": "输出风险等级、覆盖度、置信度和未知项，不给固定概率。",
+      "evidence": [{"path": "workflows/prior-art-assessment.md", "contains_all": ["高/中/低风险", "检索覆盖度、结论置信度和未知项", "没有重合百分比或固定授权概率"]}]
     },
     {
-      "id": "report_contains_cutoff_and_scenarios",
-      "request": "评估一下这个方案的授权前景",
-      "expected": "预判报告必须写明检索截止日期，并给出乐观、基准、悲观三种过审率情景。",
-      "evidence": [
-        {
-          "path": "rules/search-and-confidentiality.md",
-          "contains_all": ["检索截止日期：{系统当前日期}"]
-        },
-        {
-          "path": "workflows/prior-art-assessment.md",
-          "contains_all": ["1. 检索截止日期。", "乐观、基准、悲观三种过审率情景"]
-        }
-      ]
+      "id": "evidence_level_comparison",
+      "request": "对比高风险现有技术",
+      "expected": "按必要技术特征和证据位置逐项映射。",
+      "evidence": [{"path": "references/analysis_framework.md", "contains_all": ["必要技术特征", "对比文件及证据位置", "拿不到全文时应降级置信度"]}]
     },
     {
-      "id": "dynamic_year_window",
-      "request": "帮我检索最近两年的相关专利",
-      "expected": "检索年份由系统当前日期动态推导，绝不硬编码具体年份。",
-      "evidence": [
-        {
-          "path": "rules/search-and-confidentiality.md",
-          "contains_all": ["所有网络检索必须基于系统提供的当前日期计算年份，绝不硬编码具体年份"]
-        },
-        {
-          "path": "references/search_strategy.md",
-          "contains_all": ["严禁硬编码任何具体年份"]
-        }
-      ]
+      "id": "confidential_queries_are_abstracted",
+      "request": "使用内部代号和参数检索",
+      "expected": "不得直接搜索完整未公开方案和内部标识。",
+      "evidence": [{"path": "rules/search-and-confidentiality.md", "contains_all": ["不要把用户未公开的完整技术方案、内部参数、客户名称、产品代号、源代码片段或商业秘密直接作为搜索词", "优先使用抽象后的技术问题词、技术手段词和技术效果词"]}]
     },
     {
-      "id": "offline_marks_stale_info",
-      "request": "现在没法联网，也帮我评估一下前景",
-      "expected": "网络检索不可用时明确说明未执行实时检索，并标注信息可能滞后。",
-      "evidence": [
-        {
-          "path": "rules/search-and-confidentiality.md",
-          "contains_all": ["应明确说明未执行实时检索"]
-        },
-        {
-          "path": "SKILL.md",
-          "contains_all": ["未联网检索时不得假装信息最新"]
-        }
-      ]
+      "id": "user_template_priority",
+      "request": "按代理机构模板整理交底书",
+      "expected": "用户模板优先，默认五章结构只是兜底。",
+      "evidence": [{"path": "workflows/draft-disclosure.md", "contains_all": ["用户提供的模板或既有文档优先", "无用户模板时读取 `templates/disclosure-template.md`"]}]
     },
     {
-      "id": "confidential_terms_not_in_queries",
-      "request": "把我们内部项目代号和完整参数拿去搜一下有没有撞车",
-      "expected": "未公开方案、内部参数、客户名称、产品代号等不得直接作为搜索词，优先使用抽象技术词。",
-      "evidence": [
-        {
-          "path": "rules/search-and-confidentiality.md",
-          "contains_all": ["不要把用户未公开的完整技术方案、内部参数、客户名称、产品代号、源代码片段或商业秘密直接作为搜索词"]
-        }
-      ]
+      "id": "mermaid_is_optional",
+      "request": "起草交底书但不需要流程图",
+      "expected": "不为满足默认模板强制添加 Mermaid。",
+      "evidence": [{"path": "workflows/draft-disclosure.md", "contains_all": ["仅在图确有帮助且用户需要时生成 Mermaid", "没有图时不为满足模板强行添加"]}]
     },
     {
-      "id": "invention_name_limit_and_template",
-      "request": "开始起草交底书正文",
-      "expected": "发明名称不超过 25 字，正文严格按五章模板组织且不得增删章节。",
-      "evidence": [
-        {
-          "path": "workflows/draft-disclosure.md",
-          "contains_all": ["名称不超过 25 字", "不得随意增删章节或改变顺序"]
-        }
-      ]
+      "id": "word_export_is_fast_mode",
+      "request": "把定稿 Markdown 导出 Word",
+      "expected": "导出不触发联网、公开风险或风险评估。",
+      "evidence": [{"path": "workflows/export-docx.md", "contains_all": ["导出属于快速模式", "不要求联网检索、公开风险确认或风险预判", "直接运行脚本，无需先读取源码"]}]
     },
     {
-      "id": "word_export_input_limitations",
-      "request": "把交底书导出成 Word",
-      "expected": "导出前说明输入约束：正文不得含 Markdown 表格，Mermaid 图不会被渲染，发明名称位于最顶部且不超过 25 字。",
-      "evidence": [
-        {
-          "path": "workflows/export-docx.md",
-          "contains_all": ["正文不得包含 Markdown 表格", "Mermaid 代码块不会被渲染", "且不超过 25 字"]
-        }
-      ]
-    },
-    {
-      "id": "claim_terms_and_dual_filing_accuracy",
-      "request": "帮我把关键点整理成可转化为权利要求的写法",
-      "expected": "术语参考正确说明其特征在于的使用位置，一案两报仅限产品类且须同日申请。",
-      "evidence": [
-        {
-          "path": "references/terminology.md",
-          "contains_all": ["独立权利要求前序部分与特征部分的分界、从属权利要求引用部分之后均使用", "同日分别申请发明专利和实用新型", "方法类方案不能申请实用新型"]
-        }
-      ]
+      "id": "formal_claim_boundary",
+      "request": "直接生成可提交的正式权利要求",
+      "expected": "只提供技术材料与保护点素材，不替代正式申请文本和法律意见。",
+      "evidence": [{"path": "SKILL.md", "contains_all": ["不承诺生成可直接提交的", "不是可直接提交的正式申请文件"]}]
     }
   ]
 }

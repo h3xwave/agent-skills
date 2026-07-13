@@ -2,7 +2,7 @@
 
 构建非摄影类 AI 图片提示词时（插画、平面设计、矢量扁平、拼贴 zine、故障艺术、3D/CGI、混合媒介、动漫 cel-shading 等），从这些层面取材。不要机械罗列；按用户的媒介意图和目标选最关键的元素。
 
-> 分工说明：本框架用于**从零构建**非摄影画面（文字 brief 模式）。若用户上传参考图并要求反推、提取风格或换主体，走 `references/style-dimensions.md`；摄影或写实拍摄类 brief 走 `references/photography-framework.md`。
+> 分工说明：本框架用于**从零构建**非摄影画面（文字 brief 模式）。若用户上传参考图并要求分析、提取风格或换主体，走 [reference-image-workflow.md](reference-image-workflow.md)；摄影或写实拍摄类 brief 走 [photography-framework.md](photography-framework.md)。
 
 ## Medium
 

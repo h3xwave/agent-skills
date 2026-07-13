@@ -8,8 +8,8 @@
 
 | Skill | 用途 |
 | --- | --- |
-| `design-image-prompt-engineer` | 根据文字 brief、已有 Prompt 或参考图，创作、诊断和优化多媒介 AI 图像提示词（详见 [docs/design-image-prompt-engineer/README.zh-CN.md](docs/design-image-prompt-engineer/README.zh-CN.md)） |
-| `patent-disclosure` | 专利交底书编写助手：方向挖掘、结构化访谈、授权前景预判、交底书起草与 Word 导出（详见 [docs/patent-disclosure/README.zh-CN.md](docs/patent-disclosure/README.zh-CN.md)） |
+| `design-image-prompt-engineer` | 创作、诊断和优化多媒介 AI 图像提示词，支持参考图分析/模板/具体主体与人物一致性用法；直接出图转交图像工具（详见 [docs/design-image-prompt-engineer/README.zh-CN.md](docs/design-image-prompt-engineer/README.zh-CN.md)） |
+| `patent-disclosure` | 方向挖掘、自适应访谈、定性现有技术风险评估、交底书快速/完整模式与 Word 导出（详见 [docs/patent-disclosure/README.zh-CN.md](docs/patent-disclosure/README.zh-CN.md)） |
 
 ## 目录
 
@@ -31,10 +31,15 @@
 │   ├── validate_repository.py
 │   ├── design-image-prompt-engineer/
 │   │   ├── validate.py
-│   │   └── behavior_cases.json
+│   │   ├── behavior_cases.json
+│   │   ├── evals.json
+│   │   └── trigger_evals.json
 │   └── patent-disclosure/
 │       ├── validate.py
-│       └── behavior_cases.json
+│       ├── test_generate_docx.py
+│       ├── behavior_cases.json
+│       ├── evals.json
+│       └── trigger_evals.json
 ├── docs/
 │   ├── design-image-prompt-engineer/
 │   │   └── README.zh-CN.md
@@ -63,7 +68,15 @@ py -3 ".\tests\validate_repository.py"
 py -3 ".\tests\validate_repository.py" --skill design-image-prompt-engineer
 ```
 
-仓库级校验会检查 Skill 名称、目录、frontmatter、可安装内容和重复触发语，并为每个 Skill 自动运行官方 `quick_validate.py`；存在 `tests/<name>/validate.py` 时还会运行该 Skill 的领域回归检查。
+仓库级校验会检查 Skill 名称、目录、frontmatter、可安装内容、重复触发语和评测数据结构，并为每个 Skill 自动运行官方 `quick_validate.py`；存在 `tests/<name>/validate.py` 时还会运行该 Skill 的静态与契约检查。
+
+`behavior_cases.json` 用于锁定文档契约，不代表模型行为已经通过。`evals.json` 保存真实执行任务与验收点，`trigger_evals.json` 保存 10 条应触发和 10 条不应触发的边界请求；修改 Skill 行为时应以旧版快照为基线运行这些评测并人工复核输出。
+
+专利 Skill 的 Word 导出及其冒烟测试依赖 `python-docx`；首次验证或导出前安装：
+
+```powershell
+py -3 -m pip install python-docx
+```
 
 ## 安装
 

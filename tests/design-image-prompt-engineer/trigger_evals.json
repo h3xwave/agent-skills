@@ -1,0 +1,22 @@
+[
+  {"query":"mj 做汽车广告那种要怎么描述？横版 16:9，车漆反光要稳，给我可直接粘贴的一整段。","should_trigger":true},
+  {"query":"这个产品图提示词总是塑料感很重，帮我诊断并改得像真实棚拍。","should_trigger":true},
+  {"query":"我拿自己的头像当参考做全身生活照，大头小身还假笑。帮我诊断下怎么下指令，最后给修正版。","should_trigger":true},
+  {"query":"把这张参考海报反推成可替换主体的视觉风格提示词模板。","should_trigger":true},
+  {"query":"flux2 里想做空荡荡的雨夜车站，界面没有负向栏，这种排除路人要怎么写才对？","should_trigger":true},
+  {"query":"我有一段 Stable Diffusion 正负向提示词混在一起了，帮我整理。","should_trigger":true},
+  {"query":"写一套两色扁平矢量 UI 图标的生成提示词。","should_trigger":true},
+  {"query":"分析这张参考图的构图、光线与色彩，先不要直接生成图片。","should_trigger":true},
+  {"query":"写一个手机随手拍的夜间聚会抓拍 prompt，要有真实现场感。","should_trigger":true},
+  {"query":"我有三张图：第一张管人物长相，第二张只管姿势，第三张管场景。Nano Banana 里怎样说明才不会串图？","should_trigger":true},
+  {"query":"请直接把这张照片里的人换成红色外套并生成成品图。","should_trigger":false},
+  {"query":"帮我把这段中文营销文案去掉 AI 味，改得像人写的。","should_trigger":false},
+  {"query":"这张真人照片为什么看起来人物比例怪？只做摄影作品点评。","should_trigger":false},
+  {"query":"用图像工具直接生成一张透明背景的咖啡杯 PNG。","should_trigger":false},
+  {"query":"帮我写一份咖啡机结构改进的专利交底书。","should_trigger":false},
+  {"query":"帮我优化这段用于写营销文案的 system prompt，输出不要有 AI 味，语气像真实编辑。","should_trigger":false},
+  {"query":"识别这张截图中的所有文字并整理成表格。","should_trigger":false},
+  {"query":"解释 50mm 和 85mm 镜头拍人像的差异，不需要 AI 绘图提示词。","should_trigger":false},
+  {"query":"评价这个品牌 Logo 的可读性和商标风险。","should_trigger":false},
+  {"query":"把现有 SVG 图标的路径数据压缩一下。","should_trigger":false}
+]

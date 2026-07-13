@@ -1,248 +1,76 @@
 {
   "cases": [
     {
-      "id": "corporate_headshot_clean_real",
-      "request": "帮我写一个像实拍的企业头像提示词",
-      "expected": "进入干净真实轨道，允许自然直视镜头，不自动变成抓拍。",
-      "evidence": [
-        {
-          "path": "references/photography-templates.md",
-          "contains_all": ["企业头像", "可以直视镜头", "不要自动改成生活抓拍"]
-        }
-      ]
+      "id": "direct_image_requests_handoff",
+      "request": "直接把照片换背景并生成成品图",
+      "expected": "不把直接出图请求当作提示词任务，转交 imagegen。",
+      "evidence": [{"path": "SKILL.md", "contains_all": ["不直接生成或编辑图片", "直接出图请求转交 `imagegen`"]}]
     },
     {
-      "id": "skincare_product_stays_clean",
-      "request": "写一个护肤品真实拍摄 prompt，不要 AI 味",
-      "expected": "使用干净真实产品摄影，不自行添加杂物、噪点、过曝或污渍。",
-      "evidence": [
-        {
-          "path": "references/photography-templates.md",
-          "contains_all": ["产品真实拍摄", "保持台面和材质可信", "不自行增加杂物、污渍、噪点、过曝或死黑"]
-        },
-        {
-          "path": "references/prompt-optimization.md",
-          "contains_all": ["护肤品摆在桌上", "干净真实而非生活抓拍"]
-        }
-      ]
+      "id": "photography_single_authority",
+      "request": "写一个像实拍但不脏乱的产品摄影 Prompt",
+      "expected": "摄影框架是三轨与锚点的唯一权威来源。",
+      "evidence": [{"path": "references/photography-framework.md", "contains_all": ["## 摄影三轨", "## 真实感锚点预算", "干净真实不等于杂乱"]}]
     },
     {
-      "id": "phone_snapshot_anchor_budget",
-      "request": "写一个手机随手拍的生活照 prompt",
-      "expected": "生活抓拍整条只用 1–2 个锚点，手机成像预设整体只计一个。",
-      "evidence": [
-        {
-          "path": "references/photography-templates.md",
-          "contains_all": ["手机", "每个预设整体计为一个真实感锚点", "生活抓拍整条 Prompt 合计使用 1–2 个"]
-        }
-      ]
+      "id": "non_photo_medium_isolation",
+      "request": "写两色扁平矢量图标提示词",
+      "expected": "非摄影任务使用媒介语言且不自动混入摄影参数。",
+      "evidence": [{"path": "references/non-photographic-framework.md", "contains_all": ["避免写实阴影、景深虚化与照片质感", "避免镜头语言与写实光影"]}]
     },
     {
-      "id": "wedding_mixed_light",
-      "request": "婚礼现场混合光抓拍 prompt",
-      "expected": "有一个可解释的现场主导光源，同时允许真实环境光或弱辅助光。",
-      "evidence": [
-        {
-          "path": "references/photography-templates.md",
-          "contains_all": ["一个现场主导光源", "合理混合光", "混合光不等于多个互相矛盾的主光"]
-        }
-      ]
+      "id": "reference_analysis_mode",
+      "request": "分析参考图风格，暂时不要 Prompt",
+      "expected": "分析模式输出结构化观察，不被模板契约覆盖。",
+      "evidence": [{"path": "references/reference-image-workflow.md", "contains_all": ["风格分析", "不得默认把“分析”改成纯 Prompt"]}]
     },
     {
-      "id": "real_estate_bracketing",
-      "request": "写一个真实房产照片提示词",
-      "expected": "使用干净真实路径，允许合理包围曝光和克制合成，不强制有限动态范围。",
-      "evidence": [
-        {
-          "path": "references/photography-templates.md",
-          "contains_all": ["真实房产照片允许合理包围曝光和克制合成", "不要强制有限动态范围"]
-        }
-      ]
+      "id": "reference_template_mode",
+      "request": "提取可替换主体的通用模板",
+      "expected": "模板只含一次主体占位符，不附分析、负向词或平台参数。",
+      "evidence": [{"path": "references/reference-image-workflow.md", "contains_all": ["只输出一段可粘贴的模板 Prompt", "不输出分析、负向词或平台参数"]}]
     },
     {
-      "id": "imaging_presets_are_modifiers",
-      "request": "分别写胶片、一次性相机和早期 CCD 风格提示词",
-      "expected": "成像链路作为可叠加预设，每次最多选择一个，整体计一个锚点。",
-      "evidence": [
-        {
-          "path": "references/photography-templates.md",
-          "contains_all": ["胶片", "一次性相机", "早期 CCD", "扫描底片", "每次最多选择一个预设"]
-        }
-      ]
+      "id": "reference_specific_subject_mode",
+      "request": "保持风格并换成指定自有品牌产品",
+      "expected": "具体主体模式保留用户明确指定的品牌、Logo 与文案。",
+      "evidence": [{"path": "references/reference-image-workflow.md", "contains_all": ["用户明确指定的新主体、自有角色、品牌、Logo、文案", "具体主体模式不使用模板占位符"]}]
+    },
+    {
+      "id": "person_reference_scope",
+      "request": "诊断头像扩展全身时比例和表情失败",
+      "expected": "人物分支只交付诊断、Prompt 或用法，并说明身体假设。",
+      "evidence": [{"path": "references/person-reference.md", "contains_all": ["本 Skill 只交付原因诊断、Prompt 或参考图用法说明", "未展示的体型、全身比例和姿态不是可保留的事实"]}]
+    },
+    {
+      "id": "negative_strategy_is_conditional",
+      "request": "用户未要求负向内容",
+      "expected": "负向策略不是普通平台任务的默认读取材料。",
+      "evidence": [{"path": "references/negative-prompt-strategies.md", "contains_all": ["仅当用户明确索要 negative prompt", "先确认平台，再决定是否输出负向内容"]}]
     },
     {
       "id": "flux_positive_only",
-      "request": "给我 FLUX.2 可用的 prompt 和 negative prompt",
-      "expected": "不输出 negative prompt，把排除意图改写为正向目标。",
-      "evidence": [
-        {
-          "path": "references/negative-prompt-strategies.md",
-          "contains_all": ["FLUX 不支持负向提示词", "只输出正向替代表达", "不添加 negative prompt"]
-        }
-      ]
+      "request": "为 FLUX.2 写 Prompt 和 negative prompt",
+      "expected": "FLUX 只给正向替代表达。",
+      "evidence": [{"path": "references/platforms/flux.md", "contains_all": ["不要输出独立 negative prompt", "只输出正向替代表达"]}]
     },
     {
-      "id": "stable_diffusion_negative_field",
-      "request": "为 Stable Diffusion 写正向和负向提示词",
-      "expected": "可以提供独立 negative prompt，并与正向 Prompt 分栏。",
-      "evidence": [
-        {
-          "path": "references/negative-prompt-strategies.md",
-          "contains_all": ["Stable Diffusion", "独立 negative prompt 字段", "与正向 Prompt 分栏"]
-        }
-      ]
+      "id": "stable_diffusion_separate_negative",
+      "request": "为 Stable Diffusion 写正负向提示词",
+      "expected": "正向 Prompt 与独立 negative prompt 分栏。",
+      "evidence": [{"path": "references/platforms/stable-diffusion.md", "contains_all": ["正向 Prompt 与独立 negative prompt 分栏", "不把 `--no` 当作 Stable Diffusion 语法"]}]
     },
     {
-      "id": "midjourney_current_raw_and_omni",
-      "request": "写 Midjourney 当前版本提示词，并适配 Omni Reference",
-      "expected": "普通当前路径使用 V8.1 与 --raw；Omni Reference 自动切换兼容 V7 的 --oref 路径。",
-      "evidence": [
-        {
-          "path": "references/platform-notes.md",
-          "contains_all": ["V8.1", "`--raw`", "Omni Reference", "`--oref <URL>`", "自动切到兼容路径"]
-        }
-      ]
+      "id": "platform_files_have_freshness_metadata",
+      "request": "按指定平台适配 Prompt",
+      "expected": "每个平台文件提供核验日期和来源。",
+      "evidence": [{"path": "references/platforms/midjourney.md", "contains_all": ["Last verified:", "## Official sources"]}]
     },
     {
-      "id": "reference_style_pure_template",
-      "request": "从参考图提取风格，给我可替换主体的模板",
-      "expected": "主体占位符只出现一次，不附负向提示词或平台参数。",
-      "evidence": [
-        {
-          "path": "references/reference-image-contract.md",
-          "contains_all": ["[在此处替换为您想要生成的主体内容]", "不附负向提示词、平台参数或平台使用说明"]
-        }
-      ]
-    },
-    {
-      "id": "non_photo_isolation",
-      "request": "写扁平矢量、插画和 3D 渲染提示词",
-      "expected": "使用媒介自身的版式、上色、描边或渲染语言，不自动加入摄影参数。",
-      "evidence": [
-        {
-          "path": "references/non-photographic-templates.md",
-          "contains_all": ["不要自动加入焦段、光圈、摄影景深、胶片颗粒、相机型号或摄影轨道", "Flat Vector Illustration", "3D Render"]
-        }
-      ]
-    },
-    {
-      "id": "existing_prompt_optimization",
-      "request": "优化我已有的写实产品 prompt",
-      "expected": "保留原意，先判断媒介、平台与摄影轨道，合并计算已有锚点。",
-      "evidence": [
-        {
-          "path": "references/prompt-optimization.md",
-          "contains_all": ["保留用户的主体、目标媒介和关键审美", "模板、原 Prompt 与成像预设中的锚点必须合并计数", "不为了套模板而推翻原意"]
-        }
-      ]
-    },
-    {
-      "id": "natural_brand_logo_and_text_allowed",
-      "request": "写一张真实的城市天台生活照，允许出现正常品牌、Logo、招牌和包装文字",
-      "expected": "不自动添加无文字、无 Logo 或无品牌限制；正常商业与环境文字可以按现实语境自然出现。",
-      "evidence": [
-        {
-          "path": "SKILL.md",
-          "contains_all": ["不要例行加入“不出现文字、Logo、标志或品牌”等限制", "正常品牌、Logo、招牌、包装文字"]
-        },
-        {
-          "path": "references/negative-prompt-strategies.md",
-          "contains_all": ["正常场景中的品牌、Logo、招牌和包装文字不属于默认排除项", "不要把 `logo` 或 `text` 无条件列入负向"]
-        },
-        {
-          "path": "references/prompt-optimization.md",
-          "contains_all": ["文字与标志过度排除", "无文字、无 Logo、无品牌"]
-        }
-      ]
-    },
-    {
-      "id": "person_reference_diagnosis_activation",
-      "request": "我用头像生成的人物比例和表情都很怪，这是怎么回事？",
-      "expected": "即使用户先要原因诊断而不是成品 Prompt，也触发人物参考一致性路由；只有直接出图请求被排除。",
-      "evidence": [
-        {
-          "path": "SKILL.md",
-          "contains_all": ["prompt diagnosis", "reference-workflow guidance", "为什么人物比例怪", "询问人物参考导致的比例、表情与一致性故障"]
-        },
-        {
-          "path": "references/prompt-optimization.md",
-          "contains_all": ["诊断、解释与改写都继续本流程", "只有直接出图请求转交图像工作流"]
-        }
-      ]
-    },
-    {
-      "id": "person_reference_route_precedence",
-      "request": "用这张头像换一套衣服和场景，但要保持还是同一个人",
-      "expected": "人物身份保留路由先于参考图风格迁移，不执行身份剥离。",
-      "evidence": [
-        {
-          "path": "SKILL.md",
-          "contains_all": ["此路由优先于风格迁移", "不剥离用户要求保留的人物身份", "不属于人物参考一致性的参考图风格模板"]
-        }
-      ]
-    },
-    {
-      "id": "lifestyle_portrait_defaults_clean_real",
-      "request": "用我的头像写一张安静站立的全身生活照提示词",
-      "expected": "普通生活照默认干净真实，不自动加入走路、摆臂或抓拍语汇。",
-      "evidence": [
-        {
-          "path": "references/photography-templates.md",
-          "contains_all": ["普通“生活照 / 生活方式人像”默认选干净真实", "动作瞬间", "才选生活抓拍"]
-        },
-        {
-          "path": "references/person-reference.md",
-          "contains_all": ["稳定姿势默认", "不要自行增加走路、转身、跳跃或大幅摆臂"]
-        }
-      ]
-    },
-    {
-      "id": "person_reference_headshot_proportions",
-      "request": "用我的头像照片生成全身生活照，人物比例总是怪异",
-      "expected": "声明头像仅提供面部身份，优先补全身/姿势参考；缺少时说明身体是生成假设，并使用静态全身骨架与自然透视。",
-      "evidence": [
-        {
-          "path": "references/person-reference.md",
-          "contains_all": ["仅提供面部身份", "全身参考优先", "不代表本人真实体型", "头像扩展为全身", "约 50mm 自然透视", "普通生活方式人像而非动态抓拍"]
-        },
-        {
-          "path": "references/prompt-optimization.md",
-          "contains_all": ["人物参考冲突", "头肩照配半身或全身景别却无头身比例锚点"]
-        }
-      ]
-    },
-    {
-      "id": "person_reference_expression_single_source",
-      "request": "用照片里的人生成一张大笑的照片，表情总是很怪",
-      "expected": "表情主权唯一，用神态描述代替表情命令，并说明与照片差异越大相似度越低。",
-      "evidence": [
-        {
-          "path": "references/person-reference.md",
-          "contains_all": ["表情主权唯一", "用神态描述代替表情命令", "差异越大、相似度越低"]
-        }
-      ]
-    },
-    {
-      "id": "person_reference_two_step_far_scene",
-      "request": "远景大场景里保持照片人物一致",
-      "expected": "脸部占比过小时建议两步法：先锁定构图与比例，再注入面部身份。",
-      "evidence": [
-        {
-          "path": "references/person-reference.md",
-          "contains_all": ["两步法", "只替换面部身份，姿态、构图与光线保持不变", "比例由第一步锁定，身份由第二步注入"]
-        }
-      ]
-    },
-    {
-      "id": "person_reference_style_priority",
-      "request": "把照片里的人变成动漫风格，但要很像本人",
-      "expected": "说明高相似度与强风格化互相牵制，请用户选择优先项或改用两步法。",
-      "evidence": [
-        {
-          "path": "references/person-reference.md",
-          "contains_all": ["风格优先", "标志性特征保持辨识度", "互相牵制"]
-        }
-      ]
+      "id": "relevant_dimensions_only",
+      "request": "为简单图标写 Prompt",
+      "expected": "只选择与任务相关的视觉维度，不机械堆满所有项目。",
+      "evidence": [{"path": "references/reference-image-workflow.md", "contains_all": ["只选择对当前画面有解释力的维度", "不机械逐项罗列"]}]
     }
   ]
 }

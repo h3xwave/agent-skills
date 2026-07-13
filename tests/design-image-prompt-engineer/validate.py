@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Static validator for the design-image-prompt-engineer source and install."""
+"""Static and contract validator for design-image-prompt-engineer."""
 
 from __future__ import annotations
 
@@ -7,28 +7,43 @@ import argparse
 import json
 import re
 import sys
+from datetime import date, datetime
 from pathlib import Path
 from urllib.parse import unquote
 
 
 ALLOWED_FRONTMATTER = {"name", "description"}
 EXPECTED_TOP_LEVEL = {"SKILL.md", "agents", "references"}
-EXPECTED_TEMPLATE_FILES = {
+LEGACY_FILES = {
+    "references/photorealism.md",
+    "references/platform-notes.md",
+    "references/reference-image-contract.md",
+    "references/style-dimensions.md",
+    "references/visual-trends.md",
+}
+REQUIRED_FILES = {
+    "references/photography-framework.md",
     "references/photography-templates.md",
     "references/non-photographic-templates.md",
-    "references/negative-prompt-strategies.md",
+    "references/reference-image-workflow.md",
+    "references/platforms/midjourney.md",
+    "references/platforms/gpt-image.md",
+    "references/platforms/nano-banana.md",
+    "references/platforms/flux.md",
+    "references/platforms/stable-diffusion.md",
 }
-OLD_TEMPLATE_FILE = "references/prompt-templates.md"
+PLATFORM_FILES = tuple(sorted(path for path in REQUIRED_FILES if path.startswith("references/platforms/")))
 REFERENCE_PLACEHOLDER = "[在此处替换为您想要生成的主体内容]"
-PLATFORM_FLAGS = re.compile(r"(?<!\w)--(?:ar|raw|v|niji|oref|ow|sref|sw|stylize|no)\b", re.I)
 MARKDOWN_LINK = re.compile(r"\[[^\]]*\]\(([^)]+)\)")
 FENCE = re.compile(r"```(?:text)?\s*\n(.*?)```", re.I | re.S)
+VERIFIED = re.compile(r"^Last verified:\s*(\d{4}-\d{2}-\d{2})\s*$", re.M)
 
 
 class Validation:
     def __init__(self) -> None:
         self.checks = 0
         self.errors: list[str] = []
+        self.warnings: list[str] = []
 
     def require(self, condition: bool, message: str) -> None:
         self.checks += 1
@@ -74,149 +89,116 @@ def validate_frontmatter(skill_dir: Path, validation: Validation) -> None:
     if not skill_file.is_file():
         return
     keys, body = parse_frontmatter(read_text(skill_file))
-    validation.require(bool(keys), "SKILL.md must have YAML frontmatter")
     validation.require(set(keys) == ALLOWED_FRONTMATTER, f"frontmatter keys must be exactly {sorted(ALLOWED_FRONTMATTER)}; got {keys}")
     validation.require(len(keys) == len(set(keys)), "frontmatter keys must not be duplicated")
-    validation.require(60 <= len(body.splitlines()) <= 120, f"SKILL.md body should stay near 90 lines (accepted 60-120); got {len(body.splitlines())}")
+    validation.require(len(body.splitlines()) <= 90, f"SKILL.md body exceeds 90 lines: {len(body.splitlines())}")
+    validation.require("use imagegen instead" in read_text(skill_file), "description must hand direct image generation/editing to imagegen")
 
 
-def validate_layout(skill_dir: Path, validation: Validation) -> None:
+def validate_layout_and_routing(skill_dir: Path, validation: Validation) -> None:
     actual = {path.name for path in skill_dir.iterdir()} if skill_dir.is_dir() else set()
-    validation.require(actual <= EXPECTED_TOP_LEVEL, f"source skill contains unexpected top-level entries: {sorted(actual - EXPECTED_TOP_LEVEL)}")
-    validation.require(EXPECTED_TOP_LEVEL <= actual, f"source skill is missing top-level entries: {sorted(EXPECTED_TOP_LEVEL - actual)}")
-    for rel in sorted(EXPECTED_TEMPLATE_FILES):
-        validation.require((skill_dir / rel).is_file(), f"missing split template file: {rel}")
-    validation.require(not (skill_dir / OLD_TEMPLATE_FILE).exists(), f"legacy combined template must be removed: {OLD_TEMPLATE_FILE}")
+    validation.require(actual == EXPECTED_TOP_LEVEL, f"top-level entries must be exactly {sorted(EXPECTED_TOP_LEVEL)}; got {sorted(actual)}")
+    for rel in sorted(REQUIRED_FILES):
+        validation.require((skill_dir / rel).is_file(), f"missing required resource: {rel}")
+    for rel in sorted(LEGACY_FILES):
+        validation.require(not (skill_dir / rel).exists(), f"legacy resource must be removed: {rel}")
 
+    skill_text = read_text(skill_dir / "SKILL.md")
+    references = sorted((skill_dir / "references").rglob("*.md"))
+    for reference in references:
+        rel = reference.relative_to(skill_dir).as_posix()
+        validation.require(rel in skill_text, f"reference lacks a direct SKILL.md task route: {rel}")
 
-def validate_links(skill_dir: Path, validation: Validation) -> None:
-    markdown_files = sorted(skill_dir.rglob("*.md"))
-    for markdown in markdown_files:
+    for markdown in sorted(skill_dir.rglob("*.md")):
         for target in local_markdown_targets(markdown, read_text(markdown)):
             validation.require(target.exists(), f"broken Markdown path in {markdown.relative_to(skill_dir)}: {target}")
 
-    skill_text = read_text(skill_dir / "SKILL.md")
-    references = sorted((skill_dir / "references").glob("*.md"))
-    for reference in references:
-        rel = reference.relative_to(skill_dir).as_posix()
-        validation.require(rel in skill_text, f"reference is not routed directly from SKILL.md: {rel}")
 
+def validate_single_authority_and_templates(skill_dir: Path, validation: Validation) -> None:
+    photography = read_text(skill_dir / "references/photography-framework.md")
+    for term in ("## 摄影三轨", "## 真实感锚点预算", "## 成像修饰器", "## 可解释的主导光源"):
+        validation.require(term in photography, f"photography authority is missing: {term}")
 
-def validate_stale_phrasing(skill_dir: Path, validation: Validation) -> None:
-    files = sorted(skill_dir.rglob("*.md"))
-    corpus = "\n".join(read_text(path) for path in files)
-    validation.require("--style raw" not in corpus, "obsolete Midjourney syntax found: --style raw")
-    old_default_patterns = [
-        r"默认.{0,16}(?:Midjourney|MJ).{0,16}V7",
-        r"(?:Midjourney|MJ).{0,16}(?:默认|当前默认).{0,16}V7",
-        r"当前默认版本为\s*\*{0,2}V7\b",
-    ]
-    for pattern in old_default_patterns:
-        validation.require(not re.search(pattern, corpus, re.I), f"obsolete default Midjourney V7 wording found: {pattern}")
-
-    for line in corpus.splitlines():
-        if re.search(r"DALL[·.-]?E", line, re.I) and re.search(r"推荐|首选|默认", line):
-            allowed_deprecation = any(
-                marker in line
-                for marker in ("不再推荐", "不推荐", "不作为", "没有推荐", "不再把", "deprecated")
-            )
-            validation.require(allowed_deprecation, f"DALL·E appears recommended for new work: {line.strip()}")
-
-    bad_flux_markers = (
-        "FLUX 使用 negative prompt",
-        "FLUX 提供 negative prompt",
-        "FLUX 支持 negative prompt",
-        "FLUX 负向提示词：",
-    )
-    for marker in bad_flux_markers:
-        validation.require(marker not in corpus, f"FLUX must not receive a negative prompt: {marker}")
-
-
-def validate_platform_and_negative_strategy(skill_dir: Path, validation: Validation) -> None:
-    platform = read_text(skill_dir / "references/platform-notes.md")
-    negatives = read_text(skill_dir / "references/negative-prompt-strategies.md")
-    required_platform_terms = (
-        "2026-07-10",
-        "V8.1",
-        "--raw",
-        "--oref",
-        "Niji 7",
-        "GPT Image 2",
-        "deprecated",
-        "Nano Banana 2",
-        "Nano Banana Pro",
-        "FLUX.2",
-        "ControlNet",
-        "IP-Adapter",
-    )
-    for term in required_platform_terms:
-        validation.require(term in platform, f"platform snapshot is missing required term: {term}")
-    for term in ("Midjourney", "--no", "Stable Diffusion", "独立 negative prompt", "自然语言平台", "正向", "FLUX 不支持负向提示词"):
-        validation.require(term in negatives, f"negative strategy is missing platform separation evidence: {term}")
-
-
-def validate_templates(skill_dir: Path, validation: Validation) -> None:
-    photography = read_text(skill_dir / "references/photography-templates.md")
-    for term in ("基础模板 + 一条摄影轨道 + 可选成像修饰器", "统一摄影轨道", "商业精修", "干净真实", "生活抓拍", "一个完整成像预设计为一个锚点"):
-        validation.require(term in photography, f"photography templates are missing unified routing rule: {term}")
+    for rel in ("references/photography-templates.md", "references/non-photographic-templates.md"):
+        lines = read_text(skill_dir / rel).splitlines()
+        validation.require(len(lines) <= 90, f"template exceeds 90 lines: {rel} ({len(lines)})")
 
     non_photo = read_text(skill_dir / "references/non-photographic-templates.md")
     fenced_templates = "\n".join(FENCE.findall(non_photo))
-    forbidden_in_non_photo_templates = (
-        re.compile(r"\b(?:16|24|28|35|50|70|85|100|135)\s*mm\b", re.I),
-        re.compile(r"\bf\s*/?\s*\d(?:\.\d+)?\b", re.I),
-        re.compile(r"摄影景深|浅景深|胶片颗粒|相机型号"),
-    )
-    for pattern in forbidden_in_non_photo_templates:
-        validation.require(not pattern.search(fenced_templates), f"photography-only language leaked into a non-photographic template: {pattern.pattern}")
+    for pattern in (r"\b(?:16|24|28|35|50|70|85|100|135)\s*mm\b", r"\bf\s*/?\s*\d(?:\.\d+)?\b", r"摄影景深|相机型号"):
+        validation.require(not re.search(pattern, fenced_templates, re.I), f"photography language leaked into non-photo templates: {pattern}")
 
 
-def validate_reference_contract(skill_dir: Path, validation: Validation) -> None:
-    contract = read_text(skill_dir / "references/reference-image-contract.md")
-    validation.require(contract.count(REFERENCE_PLACEHOLDER) == 1, "reference-image contract must contain the exact subject placeholder once")
-    validation.require(not PLATFORM_FLAGS.search(contract), "reference-image style contract must not contain platform flags")
-    validation.require("不附负向提示词" in contract, "reference-image contract must forbid negative prompts")
+def validate_reference_workflow(skill_dir: Path, validation: Validation) -> None:
+    workflow = read_text(skill_dir / "references/reference-image-workflow.md")
+    validation.require(workflow.count(REFERENCE_PLACEHOLDER) == 1, "reference workflow must contain the subject placeholder exactly once")
+    for term in ("风格分析", "可替换主体模板", "具体主体完整 Prompt", "不得默认把“分析”改成纯 Prompt", "用户明确指定的新主体、自有角色、品牌、Logo、文案"):
+        validation.require(term in workflow, f"reference workflow is missing contract evidence: {term}")
 
 
-def validate_behavior_cases(skill_dir: Path, cases_path: Path, validation: Validation) -> None:
-    validation.require(cases_path.is_file(), f"missing behavior cases: {cases_path}")
+def validate_platform_files(skill_dir: Path, validation: Validation) -> None:
+    today = date.today()
+    for rel in PLATFORM_FILES:
+        text = read_text(skill_dir / rel)
+        match = VERIFIED.search(text)
+        validation.require(bool(match), f"platform file lacks Last verified YYYY-MM-DD: {rel}")
+        validation.require("https://" in text and ("Official" in text or "Canonical" in text), f"platform file lacks official/canonical source links: {rel}")
+        if match:
+            verified = datetime.strptime(match.group(1), "%Y-%m-%d").date()
+            validation.require(verified <= today, f"platform verification date is in the future: {rel} ({verified})")
+            if (today - verified).days > 90:
+                validation.warnings.append(f"platform snapshot is older than 90 days: {rel} ({verified})")
+
+    midjourney = read_text(skill_dir / "references/platforms/midjourney.md")
+    for term in ("`--raw`", "Omni Reference", "`--oref <URL>`"):
+        validation.require(term in midjourney, f"Midjourney notes are missing: {term}")
+    flux = read_text(skill_dir / "references/platforms/flux.md")
+    validation.require("不要输出独立 negative prompt" in flux, "FLUX notes must forbid an independent negative prompt")
+    stable = read_text(skill_dir / "references/platforms/stable-diffusion.md")
+    for term in ("独立 negative prompt", "ControlNet", "IP-Adapter"):
+        validation.require(term in stable, f"Stable Diffusion notes are missing: {term}")
+
+
+def validate_stale_phrasing(skill_dir: Path, validation: Validation) -> None:
+    corpus = "\n".join(read_text(path) for path in sorted(skill_dir.rglob("*.md")))
+    validation.require("--style raw" not in corpus, "obsolete Midjourney syntax found: --style raw")
+    for line in corpus.splitlines():
+        if re.search(r"DALL[·.-]?E", line, re.I) and re.search(r"推荐|首选|默认", line):
+            validation.require(any(marker in line for marker in ("不再推荐", "不推荐", "不作为", "deprecated")), f"DALL·E appears recommended: {line.strip()}")
+    for marker in ("FLUX 使用 negative prompt", "FLUX 支持 negative prompt", "FLUX 负向提示词："):
+        validation.require(marker not in corpus, f"FLUX must not receive a negative prompt: {marker}")
+
+
+def validate_contract_cases(skill_dir: Path, cases_path: Path, validation: Validation) -> None:
+    validation.require(cases_path.is_file(), f"missing contract cases: {cases_path}")
     if not cases_path.is_file():
         return
     data = json.loads(read_text(cases_path))
     cases = data.get("cases", [])
-    validation.require(len(cases) >= 10, f"expected at least 10 behavior cases; got {len(cases)}")
+    validation.require(len(cases) >= 10, f"expected at least 10 contract cases; got {len(cases)}")
     seen: set[str] = set()
     for case in cases:
         case_id = case.get("id", "<missing-id>")
-        validation.require(case_id not in seen, f"duplicate behavior case id: {case_id}")
+        validation.require(case_id not in seen, f"duplicate contract case id: {case_id}")
         seen.add(case_id)
-        validation.require(bool(case.get("request")), f"behavior case lacks request: {case_id}")
-        validation.require(bool(case.get("expected")), f"behavior case lacks expected result: {case_id}")
+        validation.require(bool(case.get("request")) and bool(case.get("expected")), f"contract case lacks request/expected: {case_id}")
         for evidence in case.get("evidence", []):
             rel = evidence.get("path", "")
             path = skill_dir / rel
-            validation.require(path.is_file(), f"behavior case {case_id} references missing file: {rel}")
-            if not path.is_file():
-                continue
-            text = read_text(path)
-            for term in evidence.get("contains_all", []):
-                validation.require(term in text, f"behavior case {case_id} lacks evidence in {rel}: {term}")
-            alternatives = evidence.get("contains_any", [])
-            if alternatives:
-                validation.require(any(term in text for term in alternatives), f"behavior case {case_id} lacks every alternative in {rel}: {alternatives}")
+            validation.require(path.is_file(), f"contract case {case_id} references missing file: {rel}")
+            if path.is_file():
+                text = read_text(path)
+                for term in evidence.get("contains_all", []):
+                    validation.require(term in text, f"contract case {case_id} lacks evidence in {rel}: {term}")
 
 
 def validate_installed_dir(skill_dir: Path, installed_dir: Path, validation: Validation) -> None:
     validation.require(installed_dir.is_dir(), f"installed skill directory does not exist: {installed_dir}")
     if not installed_dir.is_dir():
         return
-    validation.require(not (installed_dir / OLD_TEMPLATE_FILE).exists(), f"installed skill retains legacy template: {OLD_TEMPLATE_FILE}")
-    forbidden_names = {"README.md", "CHANGELOG.md", "behavior_cases.json", "behavior-cases.json", "validate_skill.py"}
+    forbidden_names = {"README.md", "CHANGELOG.md", "behavior_cases.json", "evals.json", "trigger_evals.json", "validate.py"}
     for path in installed_dir.rglob("*"):
-        rel = path.relative_to(installed_dir)
-        lower_parts = {part.lower() for part in rel.parts}
-        is_test_artifact = "tests" in lower_parts or (path.is_file() and (path.name.startswith("test_") or path.name.endswith("_test.py")))
-        validation.require(path.name not in forbidden_names and not is_test_artifact, f"installed skill contains repository-only artifact: {rel}")
+        validation.require(path.name not in forbidden_names, f"installed skill contains repository-only artifact: {path.relative_to(installed_dir)}")
     for source_file in sorted(path for path in skill_dir.rglob("*") if path.is_file()):
         rel = source_file.relative_to(skill_dir)
         installed_file = installed_dir / rel
@@ -227,8 +209,8 @@ def validate_installed_dir(skill_dir: Path, installed_dir: Path, validation: Val
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("skill_dir", type=Path, help="source skill directory")
-    parser.add_argument("--installed-dir", type=Path, help="optional installed skill directory to inspect")
+    parser.add_argument("skill_dir", type=Path)
+    parser.add_argument("--installed-dir", type=Path)
     parser.add_argument("--behavior-cases", type=Path, default=Path(__file__).with_name("behavior_cases.json"))
     args = parser.parse_args()
 
@@ -237,22 +219,23 @@ def main() -> int:
     validation.require(skill_dir.is_dir(), f"source skill directory does not exist: {skill_dir}")
     if skill_dir.is_dir():
         validate_frontmatter(skill_dir, validation)
-        validate_layout(skill_dir, validation)
-        validate_links(skill_dir, validation)
+        validate_layout_and_routing(skill_dir, validation)
+        validate_single_authority_and_templates(skill_dir, validation)
+        validate_reference_workflow(skill_dir, validation)
+        validate_platform_files(skill_dir, validation)
         validate_stale_phrasing(skill_dir, validation)
-        validate_platform_and_negative_strategy(skill_dir, validation)
-        validate_templates(skill_dir, validation)
-        validate_reference_contract(skill_dir, validation)
-        validate_behavior_cases(skill_dir, args.behavior_cases.resolve(), validation)
+        validate_contract_cases(skill_dir, args.behavior_cases.resolve(), validation)
     if args.installed_dir:
         validate_installed_dir(skill_dir, args.installed_dir.resolve(), validation)
 
+    for warning in validation.warnings:
+        print(f"WARNING: {warning}")
     if validation.errors:
         print(f"FAILED: {len(validation.errors)} of {validation.checks} checks failed", file=sys.stderr)
         for error in validation.errors:
             print(f"- {error}", file=sys.stderr)
         return 1
-    print(f"PASS: {validation.checks} static and behavior-contract checks")
+    print(f"PASS: {validation.checks} static and contract checks")
     return 0
 
 
