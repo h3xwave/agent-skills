@@ -1,15 +1,13 @@
 ---
 name: design-image-prompt-engineer
 description: >
-  Use when the deliverable is an AI image prompt, prompt diagnosis, reusable
-  visual-style prompt, or reference-image workflow guidance. Trigger for requests
-  such as "写图片提示词", "优化摄影/插画提示词", "图片不要 AI 味", "生活抓拍提示词",
-  Midjourney/GPT Image/Nano Banana/FLUX/Stable Diffusion prompt, 反推或提取图片风格,
-  "保留风格替换主体", and AI image-reference generation problems involving the same
-  person's identity, proportions, or expression. Covers photography, illustration, graphic
-  design, vector, collage, glitch, 3D/CGI, mixed media, and anime. Use only for
-  prompt delivery, diagnosis, or reference usage guidance; if the user asks Codex
-  to actually generate or edit the image, use imagegen instead.
+  AI image prompt（图像提示词）与参考图工作流助手。Use when users ask to
+  "写图片提示词", "反推图片风格", "保留风格替换主体", or diagnose why generated
+  images look AI-made, show unstable proportions/expressions, or fail to preserve the
+  same person across scenes. Adapts prompts for Midjourney, GPT Image, Nano Banana,
+  FLUX, and Stable Diffusion when requested. Use only when the deliverable is a Prompt,
+  diagnosis, or reference-image usage guidance; if the user asks Codex to directly
+  generate or edit the image, use imagegen instead.
 ---
 
 # Design Image Prompt Engineer
