@@ -1,4 +1,4 @@
 interface:
   display_name: "图像提示词工程师"
   short_description: "创作、诊断图像 Prompt 与参考图用法，不直接出图"
-  default_prompt: "Use $design-image-prompt-engineer only to write or diagnose an AI image prompt or explain reference-image usage. If I ask you to actually generate or edit the image, use imagegen instead."
+  default_prompt: "使用 $design-image-prompt-engineer，把我的文字 brief、已有 Prompt 或参考图整理成可执行的图像 Prompt；如果我要求直接生成或编辑图片，则使用 imagegen。"

@@ -1,15 +1,91 @@
 # Skills Repository
 
-本仓库集中维护可独立发现、验证和安装的Skills。每个 Skill 都有自己的触发范围、说明文件和可选资源；仓库级脚本负责统一验证、备份与同步。
-
-仓库是所有 Skill 的唯一可版本控制主来源。可安装内容只位于 `skills/<skill-name>/`；根目录文档、测试和安装脚本不会同步进 Codex Skill 目录。
+本仓库是两个 Agent Skill 的单一版本来源，统一维护可安装内容、触发边界、领域校验和本地安装工具。可安装文件只位于 `skills/<skill-name>/`；人类文档、测试和仓库脚本不会进入 Skill 安装目录。
 
 ## Skill 清单
 
-| Skill | 用途 |
-| --- | --- |
-| `design-image-prompt-engineer` | 创作、诊断和优化多媒介 AI 图像提示词，支持参考图分析/模板/具体主体与人物一致性用法；直接出图转交图像工具（详见 [docs/design-image-prompt-engineer/README.zh-CN.md](docs/design-image-prompt-engineer/README.zh-CN.md)） |
-| `patent-disclosure` | 方向挖掘、自适应访谈、定性现有技术风险评估、交底书快速/完整模式与 Word 导出（详见 [docs/patent-disclosure/README.zh-CN.md](docs/patent-disclosure/README.zh-CN.md)） |
+| Skill | 适合任务 | 不适合任务 | 文档 |
+| --- | --- | --- | --- |
+| `design-image-prompt-engineer` | 编写或诊断图像 Prompt、分析参考图用法、提取风格、处理人物一致性 | 直接生成/编辑图片、普通图片点评、文本润色 | [中文](docs/design-image-prompt-engineer/README.zh-CN.md) · [English](docs/design-image-prompt-engineer/README.md) |
+| `patent-disclosure` | 整理发明材料、初步现有技术评估、交底书起草/补强、Word 导出 | 正式法律意见、FTO/侵权分析、直接提交申请、最终权利要求 | [中文](docs/patent-disclosure/README.zh-CN.md) · [English](docs/patent-disclosure/README.md) |
+
+## Quick Start
+
+安装 Node.js 20+ 和 npm，然后在仓库根目录执行：
+
+```shell
+npm ci
+npm run validate
+npm run skill:install -- --name design-image-prompt-engineer --dry-run
+npm run skill:install -- --name design-image-prompt-engineer
+```
+
+默认目标根目录是 `~/.codex/skills`。安装全部 Skill：
+
+```shell
+npm run skill:install -- --all --dry-run
+npm run skill:install -- --all
+```
+
+通过其他宿主加载时显式指定目标根目录；安装器会展开路径开头的 `~`：
+
+```shell
+npm run skill:install -- --all --destination-root ~/.cc-switch/skills --dry-run
+npm run skill:install -- --all --destination-root ~/.cc-switch/skills
+```
+
+安装后可直接描述任务，也可显式点名：
+
+```text
+使用 $design-image-prompt-engineer，分析这张参考图并为我的产品编写完整 Prompt。
+使用 $patent-disclosure，把这份研发说明整理成供专利代理人复核的交底材料。
+```
+
+## 安装行为
+
+安装器按名称自动发现 `skills/` 下的 Skill，不维护额外安装清单。每次正式安装都会：
+
+1. 运行仓库与目标 Skill 的 Node 校验。
+2. 在目标根目录旁创建 staging，复制源码并核对 SHA-256。
+3. 将旧安装完整备份到 `.artifacts/backups/<timestamp>/<skill-name>/`。
+4. 用已验证的 staging 替换目标目录；切换失败时恢复旧目录。
+5. 再次核对目标文件集合和哈希。
+
+目标目录是源码的完整镜像。源码中已经删除的文件、目标中的额外文件和生成物会从活动安装目录移除，但仍保留在安装前备份中。不要把安装目录当作人工维护来源；正式修改应回到本仓库。
+
+为避免链接指向仓库外位置而被误删，安装器拒绝直接替换符号链接形式的 Skill 目录。如果某个宿主通过符号链接共享另一套 Skill，请用 `--destination-root` 指向链接的真实目标目录；安装后仍可用 `--installed-root` 从两个宿主视图分别验证。
+
+支持的参数：
+
+```text
+--name <skill-name> | --all
+--dry-run
+--source-root <path>
+--destination-root <path>
+--backup-root <path>
+```
+
+## 验证与 Word 导出
+
+默认校验完全由 Node 执行，不依赖 PowerShell 或 Python：
+
+```shell
+npm run validate
+npm run validate -- --skill patent-disclosure
+npm run validate -- --installed-root ~/.codex/skills
+```
+
+校验覆盖 Skill 名称和 frontmatter、目录白名单、description 触发短语、任务路由、Markdown 链接、领域契约、平台资料日期、行为夹具和触发评测结构。`behavior_cases.json` 锁定文档契约，`evals.json` 与 `trigger_evals.json` 用于真实输出和触发边界复核；静态通过不等同于模型行为已经通过。
+
+专利 Word 导出仍使用 Python 3 和 `python-docx`。在所用 Python 环境安装依赖后执行：
+
+```shell
+python -m pip install python-docx
+npm run test:docx
+npm run patent:export -- input.md output.docx
+```
+
+`npm run test:docx` 是独立冒烟，不属于默认 `npm run validate`，因此安装图像 Skill 不需要 Python。
 
 ## 目录
 
@@ -22,86 +98,38 @@
 │   │   └── references/
 │   └── patent-disclosure/
 │       ├── SKILL.md
+│       ├── agents/openai.yaml
 │       ├── rules/
 │       ├── workflows/
 │       ├── references/
 │       ├── templates/
 │       └── scripts/
 ├── tests/
-│   ├── validate_repository.py
-│   ├── design-image-prompt-engineer/
-│   │   ├── validate.py
-│   │   ├── behavior_cases.json
-│   │   ├── evals.json
-│   │   └── trigger_evals.json
-│   └── patent-disclosure/
-│       ├── validate.py
-│       ├── test_generate_docx.py
-│       ├── behavior_cases.json
-│       ├── evals.json
-│       └── trigger_evals.json
-├── docs/
-│   ├── design-image-prompt-engineer/
-│   │   └── README.zh-CN.md
-│   └── patent-disclosure/
-│       ├── README.md
-│       └── README.zh-CN.md
+│   ├── validate-repository.mjs
+│   ├── validator.test.mjs
+│   ├── install-skill.test.mjs
+│   └── <skill-name>/
+├── docs/<skill-name>/
+│   ├── README.zh-CN.md
+│   └── README.md
 ├── scripts/
-│   └── install-skill.ps1
+│   ├── install-skill.mjs
+│   ├── validate.mjs
+│   └── run-python.mjs
+├── package.json
+├── package-lock.json
 ├── README.md
 └── CHANGELOG.md
 ```
 
-每个 `skills/<name>/` 目录只能包含可安装内容。支持的顶层项目为 `SKILL.md`、`agents/`、`references/`、`scripts/`、`assets/`、`rules/`、`workflows/`、`templates/` 和 `docs/`；测试、README 与变更记录放在 Skill 目录之外。
+每个 `skills/<name>/` 只能包含可安装内容。允许的顶层项目是 `SKILL.md`、`agents/`、`references/`、`scripts/`、`assets/`、`rules/`、`workflows/`、`templates/` 和 `docs/`；安装器与校验器从同一份代码常量读取该契约。
 
-## 验证
+## 新增或修改 Skill
 
-验证仓库中的全部 Skill：
+1. 在 `skills/<skill-name>/` 创建或修改 Skill；目录名必须与 frontmatter `name` 一致。
+2. frontmatter 只保留 `name` 和 `description`；description 使用真实用户语言中的触发短语，并与其他 Skill 保持边界清晰。
+3. 在 `tests/<skill-name>/` 维护 `validate.mjs`、行为契约、执行评测和 10 条正例/10 条负例触发评测。
+4. 在 `docs/<skill-name>/` 同步维护中英文人类说明。
+5. 运行 `npm run validate`，再用 `--dry-run` 检查安装差异。
 
-```powershell
-py -3 ".\tests\validate_repository.py"
-```
-
-只验证一个 Skill：
-
-```powershell
-py -3 ".\tests\validate_repository.py" --skill design-image-prompt-engineer
-```
-
-仓库级校验会检查 Skill 名称、目录、frontmatter、可安装内容、重复触发语和评测数据结构，并为每个 Skill 自动运行官方 `quick_validate.py`；存在 `tests/<name>/validate.py` 时还会运行该 Skill 的静态与契约检查。
-
-`behavior_cases.json` 用于锁定文档契约，不代表模型行为已经通过。`evals.json` 保存真实执行任务与验收点，`trigger_evals.json` 保存 10 条应触发和 10 条不应触发的边界请求；修改 Skill 行为时应以旧版快照为基线运行这些评测并人工复核输出。
-
-专利 Skill 的 Word 导出及其冒烟测试依赖 `python-docx`；首次验证或导出前安装：
-
-```powershell
-py -3 -m pip install python-docx
-```
-
-## 安装
-
-安装脚本按名称从 `skills/<name>/` 读取源文件。默认目标根目录是 `$HOME\.codex\skills`。
-
-```powershell
-.\scripts\install-skill.ps1 -Name design-image-prompt-engineer -DryRun
-.\scripts\install-skill.ps1 -Name design-image-prompt-engineer
-```
-
-如果当前通过 `.cc-switch` 加载 Skill，显式指定目标根目录：
-
-```powershell
-.\scripts\install-skill.ps1 -Name design-image-prompt-engineer -DestinationRoot "$HOME\.cc-switch\skills" -DryRun
-.\scripts\install-skill.ps1 -Name design-image-prompt-engineer -DestinationRoot "$HOME\.cc-switch\skills"
-```
-
-正式同步会先把旧安装完整备份到 `.artifacts/backups/<timestamp>/<skill-name>/`，再复制全部源文件并核对 SHA-256。目标目录中的未知文件会保留；验证失败时不会覆盖现有安装。
-
-## 新增 Skill
-
-1. 在 `skills/<skill-name>/` 创建独立 Skill；目录名必须与 `SKILL.md` 的 `name` 一致。
-2. frontmatter 只保留 `name` 和 `description`，不要添加 `primary` 等非官方字段。
-3. 让不同 Skill 的 `description` 和自然语言触发语保持清晰、互不重叠。
-4. 需要领域回归时，在 `tests/<skill-name>/` 添加 `validate.py` 和行为案例；没有专用测试时仍会运行官方校验。
-5. 运行仓库级验证，再通过 `install-skill.ps1 -Name <skill-name>` 安装。
-
-不需要维护额外的 Skill 清单或安装清单：`skills/` 下含 `SKILL.md` 的目录会被自动发现。README 中的表格仅用于人工浏览。
+README 中的清单只用于人工浏览；Skill 与安装目标均由目录自动发现。

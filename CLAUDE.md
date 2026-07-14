@@ -1,61 +1,69 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+本文件说明在此仓库维护 Skill 时必须遵守的仓库级约定。
 
 ## 仓库定位
 
-多 Agent Skill 的唯一可版本控制主来源。可安装内容只在 `skills/<skill-name>/`；`docs/<skill-name>/` 放各技能的人类文档（不随安装分发）；`tests/`、README、CHANGELOG 永不进入安装目录。安装目标是 `~/.codex/skills/<name>`（默认）或通过 `-DestinationRoot` 指定的其他宿主（如 `$HOME\.claude\skills`）。
+本仓库是多个 Agent Skill 的单一版本来源。可安装内容只在 `skills/<skill-name>/`；`docs/<skill-name>/` 存放不随安装分发的人类说明；`tests/`、根 README、CHANGELOG 和仓库脚本不进入安装目录。
+
+安装目录是生成目标，不是维护来源。默认目标是 `~/.codex/skills`，其他宿主通过 `--destination-root` 指定。安装器采用完整镜像语义：目标中的额外或过期文件会从活动目录移除，但旧目录会先完整备份。
 
 ## 常用命令
 
-```powershell
-# 校验全部 Skill（结构 + 官方校验 + 领域校验）
-py -3 tests/validate_repository.py
+```shell
+npm ci
 
-# 只校验一个 Skill
-py -3 tests/validate_repository.py --skill patent-disclosure
+# Node 单元测试 + 仓库/领域静态与契约校验
+npm run validate
+npm run validate -- --skill patent-disclosure
 
-# 单独跑某个 Skill 的领域校验器（含行为用例检查）
-py -3 tests/patent-disclosure/validate.py skills/patent-disclosure
+# 安装前查看差异，再执行完整镜像同步
+npm run skill:install -- --name patent-disclosure --dry-run
+npm run skill:install -- --name patent-disclosure
+npm run skill:install -- --all --destination-root ~/.cc-switch/skills
 
-# 安装（先自动跑全部校验，失败不覆盖；DryRun 只打印计划）
-.\scripts\install-skill.ps1 -Name <skill-name> -DryRun
-.\scripts\install-skill.ps1 -Name <skill-name>
-.\scripts\install-skill.ps1 -Name <skill-name> -DestinationRoot "$HOME\.claude\skills"
+# 验证现有安装与源码完全一致
+npm run validate -- --installed-root ~/.codex/skills
 
-# patent-disclosure 的 Word 导出冒烟（需 python-docx）
-py -3 skills/patent-disclosure/scripts/generate_docx.py <input.md> <output.docx>
+# 专利 Word 导出（仅此功能需要 Python 3 + python-docx）
+npm run test:docx
+npm run patent:export -- input.md output.docx
 ```
 
-Windows 环境，Python 用 `py -3` 调用。官方校验器位于 `~/.codex/skills/.system/skill-creator/scripts/quick_validate.py`，仓库校验器会自动调用它，缺失时整体失败。
+Node.js 最低版本为 20。默认安装和 `npm run validate` 不依赖 PowerShell 或 Python；Python 只用于专利 DOCX 导出和独立冒烟测试。
 
-## 校验体系（四层，理解这个再动手改）
+## 校验体系
 
-1. **仓库级** `tests/validate_repository.py`：自动发现 `skills/` 下含 SKILL.md 的目录。检查目录名与 frontmatter `name` 一致、frontmatter 只含 `name`/`description`、顶层内容在白名单内、不同 Skill 的 description 中带引号触发语不重复。
-2. **官方** `quick_validate.py`：frontmatter YAML 合法性、name/description 约束（description ≤1024 字符、不含尖括号）。
-3. **领域级** `tests/<skill-name>/validate.py` + `behavior_cases.json`：每个 Skill 自己的静态硬约束和文档契约。存在即自动运行，但不等同于真实模型行为测试。
-4. **执行评测** `evals.json` + `trigger_evals.json`：前者保存真实任务与验收点，后者固定为 10 条应触发和 10 条不应触发请求。修改行为时以旧版 Skill 快照为基线运行并人工复核；仓库校验只检查这些评测文件的结构。
+1. **仓库级** `tests/validate-repository.mjs`：自动发现 `skills/` 下含 `SKILL.md` 的目录，检查名称、frontmatter、description、顶层内容、跨 Skill 重复触发语、评测数据结构和人类文档链接。
+2. **领域级** `tests/<skill-name>/validate.mjs`：检查每个 Skill 的静态硬约束、直接路由、领域契约和行为证据。
+3. **工具回归** `tests/validator.test.mjs` 与 `tests/install-skill.test.mjs`：检查错误输入、dry-run、备份、完整镜像、失败不覆盖和自动发现。
+4. **执行评测** `evals.json` 与 `trigger_evals.json`：前者保存真实任务验收点，后者固定为 10 条应触发和 10 条不应触发请求；静态校验只检查结构，行为变化仍需用旧版快照对照复核。
+5. **DOCX 冒烟** `tests/patent-disclosure/test_generate_docx.py`：独立于默认验证执行，覆盖 A4、Mermaid 占位、页码字段和退出码。
 
-### 顶层白名单是双份的，必须同步改
+`behavior_cases.json` 的 `contains_all` 是逐字符证据串。先修改 Skill，再从最终文本复制证据，不要凭记忆重打。
 
-`tests/validate_repository.py` 的 `ALLOWED_TOP_LEVEL` 和 `scripts/install-skill.ps1` 的 `$allowedTopLevel` 是同一份契约的两个副本（当前：`SKILL.md, agents, references, scripts, assets, rules, workflows, templates, docs`）。加新目录类型时两处都要改，并更新 README 中的支持项列表。
+## 单一契约来源
 
-### 契约用例的证据串是逐字符匹配
+安装器与仓库校验器共同读取 `tests/lib/validation.mjs` 中的 `ALLOWED_TOP_LEVEL`。新增可安装顶层类型时只修改该常量，并同步更新根 README 的人类说明；不要在安装器中再维护副本。
 
-`behavior_cases.json` 中 `contains_all` 的证据串必须与技能文件文本**逐字符一致**（注意全角标点、en dash）。先改技能文件，再从改后的原文里复制证据串，不要手打。它只证明规则存在；最终输出行为由执行评测验证。
+两个 Skill 的领域硬约束：
 
-### 各 Skill 领域校验器的硬约束（改文件前先了解，否则校验挂）
+- **design-image-prompt-engineer**：SKILL.md 正文不超过 90 行；每个 reference 必须由明确任务条件直达；平台资料必须有可解析核验日期和官方来源；禁止旧 `--style raw` 及错误的 DALL·E/FLUX 负向推荐。
+- **patent-disclosure**：现有技术检索不得设置任意近年下限；评估不得使用固定重合度或过审率；rules/workflows/references/templates 下所有文件必须由 SKILL.md 的任务路由直达。
 
-- **design-image-prompt-engineer**：SKILL.md 正文只设 90 行上限、不设下限；每个引用必须从明确任务条件直达；平台快照必须有可解析核验日期和官方来源；全库禁 `--style raw`、推荐 DALL·E 和 FLUX 负向提示词。
-- **patent-disclosure**：近期年份窗口只能用于趋势/方向挖掘，专利现有技术检索不得设置任意近年下限；评估输出不得使用固定重合度或过审率；rules/workflows/references/templates 下所有文件必须由 SKILL.md 的对应任务直达。
+## 安装器行为
 
-## 安装脚本行为
+`scripts/install-skill.mjs` 的顺序固定为：Node 校验 → 计算差异 → staging 复制与 SHA-256 校验 → 旧目录完整备份 → 同卷切换 → 安装后精确镜像校验。切换失败时恢复旧目录。
 
-`install-skill.ps1` 正式安装前：跑仓库校验（失败即止）→ 把旧安装完整备份到 `.artifacts/backups/<timestamp>/<name>/` → 复制全部源文件 → SHA-256 逐文件核对。目标目录中的未知文件保留不删。`.artifacts/` 和 `__pycache__/` 已被 gitignore，但注意安装是"复制源目录全部文件"，技能目录里不要留生成物（领域校验器也会拦 `.pyc`）。
+- `--dry-run` 必须零写入，并列出新增、更新和删除项。
+- 源或目标中的符号链接、路径穿越、源码/目标重叠必须拒绝。
+- 不允许按 Skill 名称维护 deprecated 文件特判；删除语义由完整镜像自然完成。
+- `.artifacts/`、`node_modules/`、`__pycache__/` 和 `*.pyc` 不进入版本控制或 Skill 源目录。
 
 ## 修改惯例
 
-- 改技能规则时同步维护 `behavior_cases.json`；改触发或输出行为时还必须更新 `evals.json` / `trigger_evals.json`，并用旧版快照做对比评测。
-- 版本记录只写仓库根 `CHANGELOG.md`（Keep a Changelog 格式，每个 Skill 独立 semver）。
-- 新增 Skill：目录名必须与 frontmatter `name` 一致；不同 Skill 的 description 触发语保持互不重叠；无需维护任何清单文件（自动发现），README 的表格仅供人工浏览。
-- 交流与文档默认使用中文。
+- 修改触发或输出行为时，同步维护 `behavior_cases.json`、`evals.json` 和 `trigger_evals.json`，并用旧版快照对照复核。
+- 两个 Skill 的人类文档均维护 `README.zh-CN.md` 与 `README.md`；中文和英文必须表达同一能力、边界和命令。
+- Skill 界面元数据统一放在 `agents/openai.yaml`，`default_prompt` 必须包含对应 `$skill-name`。
+- 版本记录只写根 `CHANGELOG.md`；新增 Skill 由目录自动发现，不维护额外清单。
+- 交流与仓库主文档默认使用中文。

@@ -1,0 +1,4 @@
+interface:
+  display_name: "专利交底书助手"
+  short_description: "整理发明材料、初步检索并形成供代理人复核的交底材料"
+  default_prompt: "使用 $patent-disclosure，把我的发明想法或研发材料整理成供专利代理人复核的技术交底材料。"

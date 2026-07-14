@@ -1,0 +1,19 @@
+{
+  "name": "codex-skills-repository",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "npm run validate",
+    "validate": "node scripts/validate.mjs",
+    "skill:install": "node scripts/install-skill.mjs",
+    "test:docx": "node scripts/run-python.mjs tests/patent-disclosure/test_generate_docx.py",
+    "patent:export": "node scripts/run-python.mjs skills/patent-disclosure/scripts/generate_docx.py"
+  },
+  "dependencies": {
+    "yaml": "2.9.0"
+  }
+}

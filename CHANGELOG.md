@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+### npm / Node 工具链
+
+- 以 `npm run skill:install` 和 Node.js 镜像安装器替换 PowerShell 安装脚本；支持 `--name`、`--all`、`--dry-run` 和自定义源码、目标、备份根目录。
+- 安装改为 staging 校验、旧目录完整备份、同卷切换和失败回滚；目标目录必须与 Skill 源码文件集合及 SHA-256 完全一致，不再靠 deprecated 文件特判清理旧内容。
+- 仓库级与两个领域级校验器全部迁移到 Node，并使用共享 YAML/文件契约；新增安装器和校验器回归测试。默认验证不再依赖 PowerShell 或 Python。
+- 专利 DOCX 导出继续使用 Python，通过 `npm run patent:export` 和独立的 `npm run test:docx` 提供跨平台入口。
+- 两个 Skill 的 description 和 `agents/openai.yaml` 收紧任务边界；补齐专利界面元数据和图像 Skill 英文 README，统一中英文说明结构与 npm 命令。
+
 ### design-image-prompt-engineer 2.4.0
 
 - 收紧 Prompt 与直接出图的边界：直接生成/编辑图片转交图像工作流，人物参考分支只负责 Prompt、诊断和参考图用法。
@@ -30,7 +38,7 @@
 - 将单一 `skill/` 源目录迁移为可自动发现多个 Skill 的 `skills/<skill-name>/` 结构。
 - 将图片提示词 Skill 的领域校验和行为案例移动到 `tests/design-image-prompt-engineer/`。
 - 新增仓库级校验器，统一检查名称、frontmatter、目录内容和跨 Skill 重复触发语，并调用官方与领域校验。
-- 将安装脚本参数化为 `-Name`、`-SourceRoot` 和 `-DestinationRoot`，支持按名称验证、备份和同步任意 Skill。
+- 安装工具按目录自动发现 Skill，并通过统一的 npm/Node 接口按名称或全部验证、备份和同步。
 - 可安装内容顶层白名单新增 `templates/`（仓库校验器与安装脚本同步）；新增仓库根 `docs/` 存放各 Skill 的人类文档。
 - 仓库 README 精简为仓库级介绍（清单、目录、验证、安装、新增流程）；design-image-prompt-engineer 核心行为说明移至 `docs/design-image-prompt-engineer/README.zh-CN.md`。
 
